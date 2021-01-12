@@ -12,7 +12,7 @@ cp -p /usr/local/unravel/logs/unravel_td.log .
 cp -p /usr/local/unravel/logs/unravel_s_1.log .
 cp -p /usr/local/unravel/logs/unravel_hl.log .
 
-
+# Please update the table_schema accordingly 
 echo 'SELECT table_schema AS "DB Name", SUM(data_length + index_length) / 1024 / 1024 / 1024 AS "DB Size (GB)" FROM information_schema.TABLES where table_schema="unravel_mysql_prod" GROUP BY table_schema' | /usr/local/unravel/install_bin/db_access.sh > mysql-unravel-db-size.txt
 
 echo 'select TABLE_NAME, round((data_length + index_length) / 1024 / 1024 / 1024, 2) as total_size_gb, round(DATA_LENGTH / 1024 / 1024 / 1024, 2) as data_size_gb, round(INDEX_LENGTH / 1024 / 1024 / 1024, 2) as index_size_gb, TABLE_ROWS from information_schema.tables where table_schema not in ("information_schema", "mysql") order by total_size_gb desc' | /usr/local/unravel/install_bin/db_access.sh > mysql-unravel-table-size.txt
