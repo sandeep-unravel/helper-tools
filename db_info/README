@@ -22,7 +22,8 @@
 
 
 3) Run data_dump script
- - New installer:  source data_dump_new_installer.sh
+ - New installer:  source data_dump_new_installer.sh // picks up default values for unravel_version and unravel_path 
+                   source data_dump_new_installer.sh unravel_version=saml_auth-1.yaml.796 unravel_path="/opt/unravel"
  - Old installer:  source data_dump.sh
 
 
