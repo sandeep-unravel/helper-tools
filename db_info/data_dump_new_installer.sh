@@ -21,29 +21,29 @@ echo "unravel_path=$UNRAVEL_PATH"
 echo "unravel_version=$UNRAVEL_VERSION"
 UNRAVEL_PROPERTIES="$UNRAVEL_PATH/data/conf/unravel.properties"
 
-if [ -f "$UNRAVEL_PROPERTIES" ]
-then
-  echo "$file found."
-  source <(grep -v '^ *#' $UNRAVEL_PROPERTIES | grep '[^ ] *=' | awk '{split($0,a,"="); print gensub(/\./, "_", "g", a[1]) "=" a[2]}')
 
-  echo "unravel.jdbc.username=$unravel_jdbc_username"
-  echo "unravel.jdbc.url=$unravel_jdbc_url"
-  temp=`echo $unravel_jdbc_url | sed -e 's|^[^/]*//||' -e 's|/.*$||'`
-  arrIN=(${temp//:/ })
-  db_host=`echo ${arrIN[0]}`
-  db_port=`echo ${arrIN[1]}`
-  echo "db_host=$db_host"
-  echo "db_port=$db_port"
-  
-else
-  echo "$file not found."
-fi
+function getProperty {
+   PROP_KEY=$1
+   PROP_VALUE=`cat $UNRAVEL_PROPERTIES | grep "$PROP_KEY" | cut -d'=' -f2`
+   echo $PROP_VALUE
+}
+
+JDBC_USERNAME=$(getProperty "unravel.jdbc.username")
+JDBC_URL=$(getProperty "unravel.jdbc.url")
+echo "jdbc_username=$JDBC_USERNAME"
+echo "jdbc_url=$JDBC_URL"
+temp=`echo $JDBC_URL | sed -e 's|^[^/]*//||' -e 's|/.*$||'`
+echo "temp: $temp"
+arrIN=(${temp//:/ })
+DB_HOST=`echo ${arrIN[0]}`
+DB_PORT=`echo ${arrIN[1]}`
+echo "DB_HOST=$DB_HOST"
+echo "DB_PORT=$DB_PORT"
 
 echo "PATH SET"
 
 mkdir unravel-info
 cd unravel-info
-
 
 $UNRAVEL_PATH/manager version > unravel-version.txt
 cp -p ../db_connection_counter.py .
@@ -87,7 +87,8 @@ cat /etc/redhat-release > os.txt
 # Check Db session per unravel Daemon
 # NOTE: DB_HOST parameter should match the host part of JDBC URL specified via unravel.jdbc.url in unravel.properties. Otherwise, you may see empty result.
 # this will generate db_session.txt
-UNRAVEL_USER=$unravel_jdbc_username DB_HOST=$db_host DB_PORT=$db_port python db_connection_counter.py
+echo "Running DB Counter: UNRAVEL_USER=$JDBC_USERNAME DB_HOST=$DB_HOST DB_PORT=$DB_PORT python db_connection_counter.py"
+UNRAVEL_USER=$JDBC_USERNAME DB_HOST=$DB_HOST DB_PORT=$DB_PORT python db_connection_counter.py
 
 # ElasticSearch data:
 curl "localhost:4171/_cat/indices?v" > es_indices.txt
